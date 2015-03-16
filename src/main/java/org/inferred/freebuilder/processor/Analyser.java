@@ -139,7 +139,7 @@ class Analyser {
     TypeReference generatedBuilder = TypeReference.to(
         pkg.getQualifiedName().toString(), generatedBuilderSimpleName(type));
     Optional<TypeElement> builder = tryFindBuilder(generatedBuilder, type);
-    return new Metadata.Builder(elements)
+    return new Metadata.Builder()
         .setType(type)
         .setBuilder(builder)
         .setBuilderFactory(builderFactory(builder))

@@ -21,28 +21,18 @@ import static org.inferred.freebuilder.processor.util.ClassTypeImpl.newNestedCla
 import static org.inferred.freebuilder.processor.util.ClassTypeImpl.newTopLevelClass;
 import static org.inferred.freebuilder.processor.util.PrimitiveTypeImpl.INT;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
-import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Elements;
 
 import org.inferred.freebuilder.processor.GenericTypeElementImpl.GenericTypeMirrorImpl;
 import org.inferred.freebuilder.processor.Metadata.Property;
 import org.inferred.freebuilder.processor.util.ClassTypeImpl;
 import org.inferred.freebuilder.processor.util.ClassTypeImpl.ClassElementImpl;
-import org.inferred.freebuilder.processor.util.NameImpl;
 import org.inferred.freebuilder.processor.util.SourceStringBuilder;
 import org.inferred.freebuilder.processor.util.TypeReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.cglib.proxy.CallbackHelper;
-import org.mockito.cglib.proxy.Enhancer;
-import org.mockito.cglib.proxy.InvocationHandler;
-import org.mockito.cglib.proxy.NoOp;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -72,7 +62,7 @@ public class CodeGeneratorTest {
         .setGetterName("getAge")
         .setName("age")
         .setType(INT);
-    Metadata metadata = new Metadata.Builder(elements())
+    Metadata metadata = new Metadata.Builder()
         .setBuilder(newNestedClass(person, "Builder").asElement())
         .setBuilderFactory(BuilderFactory.NO_ARGS_CONSTRUCTOR)
         .setBuilderSerializable(false)
@@ -80,11 +70,11 @@ public class CodeGeneratorTest {
         .setGwtCompatible(false)
         .setGwtSerializable(false)
         .setPartialType(generatedBuilder.nestedType("Partial"))
-        .addProperty(name
+        .addProperties(name
             .setCodeGenerator(
                 new DefaultPropertyFactory.CodeGenerator(name.build(), "setName", false))
             .build())
-        .addProperty(age
+        .addProperties(age
             .setCodeGenerator(
                 new DefaultPropertyFactory.CodeGenerator(age.build(), "setAge", false))
             .build())
@@ -375,7 +365,7 @@ public class CodeGeneratorTest {
         .setGetterName("getAge")
         .setName("age")
         .setType(INT);
-    Metadata metadata = new Metadata.Builder(elements())
+    Metadata metadata = new Metadata.Builder()
         .setBuilder(newNestedClass(person, "Builder").asElement())
         .setBuilderFactory(BuilderFactory.NO_ARGS_CONSTRUCTOR)
         .setBuilderSerializable(false)
@@ -383,11 +373,11 @@ public class CodeGeneratorTest {
         .setGwtCompatible(false)
         .setGwtSerializable(false)
         .setPartialType(generatedBuilder.nestedType("Partial"))
-        .addProperty(name
+        .addProperties(name
             .setCodeGenerator(
                 new DefaultPropertyFactory.CodeGenerator(name.build(), "setName", true))
             .build())
-        .addProperty(age
+        .addProperties(age
             .setCodeGenerator(
                 new DefaultPropertyFactory.CodeGenerator(age.build(), "setAge", true))
             .build())
@@ -622,7 +612,7 @@ public class CodeGeneratorTest {
         .setGetterName("getAge")
         .setName("age")
         .setType(optionalInteger);
-    Metadata metadata = new Metadata.Builder(elements())
+    Metadata metadata = new Metadata.Builder()
         .setBuilder(newNestedClass(person, "Builder").asElement())
         .setBuilderFactory(BuilderFactory.NO_ARGS_CONSTRUCTOR)
         .setBuilderSerializable(false)
@@ -630,12 +620,12 @@ public class CodeGeneratorTest {
         .setGwtCompatible(false)
         .setGwtSerializable(false)
         .setPartialType(generatedBuilder.nestedType("Partial"))
-        .addProperty(name
+        .addProperties(name
             .setCodeGenerator(new OptionalPropertyFactory.CodeGenerator(
                 name.build(), "setName", "setNullableName", "clearName", string,
                 Optional.<TypeMirror>absent()))
             .build())
-        .addProperty(age
+        .addProperties(age
             .setCodeGenerator(new OptionalPropertyFactory.CodeGenerator(
                 age.build(), "setAge", "setNullableAge", "clearAge", integer,
                 Optional.<TypeMirror>of(INT)))
@@ -969,7 +959,7 @@ public class CodeGeneratorTest {
         .setName("age")
         .setType(integer)
         .addAllNullableAnnotations(ImmutableSet.of(nullable));
-    Metadata metadata = new Metadata.Builder(elements())
+    Metadata metadata = new Metadata.Builder()
         .setBuilder(newNestedClass(person, "Builder").asElement())
         .setBuilderFactory(BuilderFactory.NO_ARGS_CONSTRUCTOR)
         .setBuilderSerializable(false)
@@ -977,11 +967,11 @@ public class CodeGeneratorTest {
         .setGwtCompatible(false)
         .setGwtSerializable(false)
         .setPartialType(generatedBuilder.nestedType("Partial"))
-        .addProperty(name
+        .addProperties(name
             .setCodeGenerator(
                 new DefaultPropertyFactory.CodeGenerator(name.build(), "setName", true))
             .build())
-        .addProperty(age
+        .addProperties(age
             .setCodeGenerator(
                 new DefaultPropertyFactory.CodeGenerator(age.build(), "setAge", true))
             .build())
@@ -1227,7 +1217,7 @@ public class CodeGeneratorTest {
         .setGetterName("getAge")
         .setName("age")
         .setType(listInteger);
-    Metadata metadata = new Metadata.Builder(elements())
+    Metadata metadata = new Metadata.Builder()
         .setBuilder(newNestedClass(person, "Builder").asElement())
         .setBuilderFactory(BuilderFactory.NO_ARGS_CONSTRUCTOR)
         .setBuilderSerializable(false)
@@ -1235,11 +1225,11 @@ public class CodeGeneratorTest {
         .setGwtCompatible(false)
         .setGwtSerializable(false)
         .setPartialType(generatedBuilder.nestedType("Partial"))
-        .addProperty(name
+        .addProperties(name
             .setCodeGenerator(new ListPropertyFactory.CodeGenerator(
                 name.build(), string, Optional.<TypeMirror>absent()))
             .build())
-        .addProperty(age
+        .addProperties(age
             .setCodeGenerator(new ListPropertyFactory.CodeGenerator(
                 age.build(), integer, Optional.<TypeMirror>of(INT)))
             .build())
@@ -1536,37 +1526,6 @@ public class CodeGeneratorTest {
         "    return new Person_Builder.Partial(this);",
         "  }",
         "}\n"));
-  }
-
-  private static Elements elements() {
-    Enhancer e = new Enhancer();
-    e.setClassLoader(ElementsImpl.class.getClassLoader());
-    e.setSuperclass(ElementsImpl.class);
-    CallbackHelper helper = new CallbackHelper(ElementsImpl.class, new Class<?>[] {}) {
-      @Override
-      protected Object getCallback(Method method) {
-        if (Modifier.isAbstract(method.getModifiers())) {
-          return new InvocationHandler() {
-            @Override public Object invoke(Object proxy, Method method, Object[] args) {
-              throw new UnsupportedOperationException(
-                  "Not yet implemented by " + ElementsImpl.class.getCanonicalName());
-            }
-          };
-        } else {
-          return NoOp.INSTANCE;
-        }
-      }
-    };
-    e.setCallbacks(helper.getCallbacks());
-    e.setCallbackFilter(helper);
-    return (Elements) e.create();
-  }
-
-  abstract static class ElementsImpl implements Elements {
-    @Override
-    public Name getName(CharSequence cs) {
-      return new NameImpl(cs.toString());
-    }
   }
 }
 

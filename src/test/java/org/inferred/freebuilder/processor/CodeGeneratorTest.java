@@ -58,7 +58,7 @@ public class CodeGeneratorTest {
     TypeElement person = newTopLevelClass("com.example.Person").asElement();
     TypeMirror string = newTopLevelClass("java.lang.String");
     ImpliedClass generatedBuilder =
-        new ImpliedClass(PACKAGE, "Person_Builder", person, elements());
+        new ImpliedClass(PACKAGE, "Person_Builder", elements());
     Property.Builder name = new Property.Builder()
         .setAllCapsName("NAME")
         .setBoxedType(string)
@@ -362,7 +362,7 @@ public class CodeGeneratorTest {
     TypeElement person = newTopLevelClass("com.example.Person").asElement();
     TypeMirror string = newTopLevelClass("java.lang.String");
     ImpliedClass generatedBuilder =
-        new ImpliedClass(PACKAGE, "Person_Builder", person, elements());
+        new ImpliedClass(PACKAGE, "Person_Builder", elements());
     Property.Builder name = new Property.Builder()
         .setAllCapsName("NAME")
         .setBoxedType(string)
@@ -610,7 +610,7 @@ public class CodeGeneratorTest {
     GenericTypeMirrorImpl optionalString = optional.newMirror(string);
     TypeElement person = newTopLevelClass("com.example.Person").asElement();
     ImpliedClass generatedBuilder =
-        new ImpliedClass(PACKAGE, "Person_Builder", person, elements());
+        new ImpliedClass(PACKAGE, "Person_Builder", elements());
     Property.Builder name = new Property.Builder()
         .setAllCapsName("NAME")
         .setBoxedType(optionalString)
@@ -958,7 +958,7 @@ public class CodeGeneratorTest {
     GenericTypeMirrorImpl listString = list.newMirror(string);
     TypeElement person = newTopLevelClass("com.example.Person").asElement();
     ImpliedClass generatedBuilder =
-        new ImpliedClass(PACKAGE, "Person_Builder", person, elements());
+        new ImpliedClass(PACKAGE, "Person_Builder", elements());
     Property.Builder name = new Property.Builder()
         .setAllCapsName("NAME")
         .setBoxedType(listString)

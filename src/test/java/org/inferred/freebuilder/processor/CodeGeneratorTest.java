@@ -25,7 +25,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 import javax.lang.model.element.Name;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -33,10 +32,9 @@ import javax.lang.model.util.Elements;
 import org.inferred.freebuilder.processor.GenericTypeElementImpl.GenericTypeMirrorImpl;
 import org.inferred.freebuilder.processor.Metadata.Property;
 import org.inferred.freebuilder.processor.util.ClassTypeImpl;
-import org.inferred.freebuilder.processor.util.ImpliedClass;
 import org.inferred.freebuilder.processor.util.NameImpl;
-import org.inferred.freebuilder.processor.util.PackageElementImpl;
 import org.inferred.freebuilder.processor.util.SourceStringBuilder;
+import org.inferred.freebuilder.processor.util.TypeReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -51,14 +49,11 @@ import com.google.common.base.Optional;
 @RunWith(JUnit4.class)
 public class CodeGeneratorTest {
 
-  private static final PackageElement PACKAGE = new PackageElementImpl("com.example");
-
   @Test
   public void testSimpleDataType() {
     TypeElement person = newTopLevelClass("com.example.Person").asElement();
     TypeMirror string = newTopLevelClass("java.lang.String");
-    ImpliedClass generatedBuilder =
-        new ImpliedClass(PACKAGE, "Person_Builder", elements());
+    TypeReference generatedBuilder = TypeReference.to("com.example", "Person_Builder");
     Property.Builder name = new Property.Builder()
         .setAllCapsName("NAME")
         .setBoxedType(string)
@@ -82,7 +77,7 @@ public class CodeGeneratorTest {
         .setGeneratedBuilder(generatedBuilder)
         .setGwtCompatible(false)
         .setGwtSerializable(false)
-        .setPartialType(generatedBuilder.createNestedClass("Partial"))
+        .setPartialType(generatedBuilder.nestedType("Partial"))
         .addProperty(name
             .setCodeGenerator(
                 new DefaultPropertyFactory.CodeGenerator(name.build(), "setName", false))
@@ -91,9 +86,9 @@ public class CodeGeneratorTest {
             .setCodeGenerator(
                 new DefaultPropertyFactory.CodeGenerator(age.build(), "setAge", false))
             .build())
-        .setPropertyEnum(generatedBuilder.createNestedClass("Property"))
+        .setPropertyEnum(generatedBuilder.nestedType("Property"))
         .setType(person)
-        .setValueType(generatedBuilder.createNestedClass("Value"))
+        .setValueType(generatedBuilder.nestedType("Value"))
         .build();
 
     SourceStringBuilder sourceBuilder = SourceStringBuilder.simple();
@@ -361,8 +356,7 @@ public class CodeGeneratorTest {
   public void testNoRequiredProperties() {
     TypeElement person = newTopLevelClass("com.example.Person").asElement();
     TypeMirror string = newTopLevelClass("java.lang.String");
-    ImpliedClass generatedBuilder =
-        new ImpliedClass(PACKAGE, "Person_Builder", elements());
+    TypeReference generatedBuilder = TypeReference.to("com.example", "Person_Builder");
     Property.Builder name = new Property.Builder()
         .setAllCapsName("NAME")
         .setBoxedType(string)
@@ -386,7 +380,7 @@ public class CodeGeneratorTest {
         .setGeneratedBuilder(generatedBuilder)
         .setGwtCompatible(false)
         .setGwtSerializable(false)
-        .setPartialType(generatedBuilder.createNestedClass("Partial"))
+        .setPartialType(generatedBuilder.nestedType("Partial"))
         .addProperty(name
             .setCodeGenerator(
                 new DefaultPropertyFactory.CodeGenerator(name.build(), "setName", true))
@@ -395,9 +389,9 @@ public class CodeGeneratorTest {
             .setCodeGenerator(
                 new DefaultPropertyFactory.CodeGenerator(age.build(), "setAge", true))
             .build())
-        .setPropertyEnum(generatedBuilder.createNestedClass("Property"))
+        .setPropertyEnum(generatedBuilder.nestedType("Property"))
         .setType(person)
-        .setValueType(generatedBuilder.createNestedClass("Value"))
+        .setValueType(generatedBuilder.nestedType("Value"))
         .build();
 
     SourceStringBuilder sourceBuilder = SourceStringBuilder.simple();
@@ -609,8 +603,7 @@ public class CodeGeneratorTest {
     ClassTypeImpl string = newTopLevelClass("java.lang.String");
     GenericTypeMirrorImpl optionalString = optional.newMirror(string);
     TypeElement person = newTopLevelClass("com.example.Person").asElement();
-    ImpliedClass generatedBuilder =
-        new ImpliedClass(PACKAGE, "Person_Builder", elements());
+    TypeReference generatedBuilder = TypeReference.to("com.example", "Person_Builder");
     Property.Builder name = new Property.Builder()
         .setAllCapsName("NAME")
         .setBoxedType(optionalString)
@@ -634,7 +627,7 @@ public class CodeGeneratorTest {
         .setGeneratedBuilder(generatedBuilder)
         .setGwtCompatible(false)
         .setGwtSerializable(false)
-        .setPartialType(generatedBuilder.createNestedClass("Partial"))
+        .setPartialType(generatedBuilder.nestedType("Partial"))
         .addProperty(name
             .setCodeGenerator(new OptionalPropertyFactory.CodeGenerator(
                 name.build(), "setName", "setNullableName", "clearName", string,
@@ -645,9 +638,9 @@ public class CodeGeneratorTest {
                 age.build(), "setAge", "setNullableAge", "clearAge", integer,
                 Optional.<TypeMirror>of(INT)))
             .build())
-        .setPropertyEnum(generatedBuilder.createNestedClass("Property"))
+        .setPropertyEnum(generatedBuilder.nestedType("Property"))
         .setType(person)
-        .setValueType(generatedBuilder.createNestedClass("Value"))
+        .setValueType(generatedBuilder.nestedType("Value"))
         .build();
 
     SourceStringBuilder sourceBuilder = SourceStringBuilder.simple();
@@ -957,8 +950,7 @@ public class CodeGeneratorTest {
     ClassTypeImpl string = newTopLevelClass("java.lang.String");
     GenericTypeMirrorImpl listString = list.newMirror(string);
     TypeElement person = newTopLevelClass("com.example.Person").asElement();
-    ImpliedClass generatedBuilder =
-        new ImpliedClass(PACKAGE, "Person_Builder", elements());
+    TypeReference generatedBuilder = TypeReference.to("com.example", "Person_Builder");
     Property.Builder name = new Property.Builder()
         .setAllCapsName("NAME")
         .setBoxedType(listString)
@@ -982,7 +974,7 @@ public class CodeGeneratorTest {
         .setGeneratedBuilder(generatedBuilder)
         .setGwtCompatible(false)
         .setGwtSerializable(false)
-        .setPartialType(generatedBuilder.createNestedClass("Partial"))
+        .setPartialType(generatedBuilder.nestedType("Partial"))
         .addProperty(name
             .setCodeGenerator(new ListPropertyFactory.CodeGenerator(
                 name.build(), string, Optional.<TypeMirror>absent()))
@@ -991,9 +983,9 @@ public class CodeGeneratorTest {
             .setCodeGenerator(new ListPropertyFactory.CodeGenerator(
                 age.build(), integer, Optional.<TypeMirror>of(INT)))
             .build())
-        .setPropertyEnum(generatedBuilder.createNestedClass("Property"))
+        .setPropertyEnum(generatedBuilder.nestedType("Property"))
         .setType(person)
-        .setValueType(generatedBuilder.createNestedClass("Value"))
+        .setValueType(generatedBuilder.nestedType("Value"))
         .build();
 
     SourceStringBuilder sourceBuilder = SourceStringBuilder.simple();

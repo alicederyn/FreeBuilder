@@ -19,6 +19,13 @@ import static javax.lang.model.util.ElementFilter.typesIn;
 import static org.inferred.freebuilder.processor.util.ModelUtils.findAnnotationMirror;
 import static org.inferred.freebuilder.processor.util.RoundEnvironments.annotatedElementsIn;
 
+import com.google.auto.service.AutoService;
+import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableSet;
+
+import org.inferred.freebuilder.FreeBuilder;
+import org.inferred.freebuilder.processor.util.CompilationUnitWriter;
+
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -28,14 +35,6 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic.Kind;
-
-import org.inferred.freebuilder.FreeBuilder;
-import org.inferred.freebuilder.processor.util.CompilationUnitWriter;
-import org.inferred.freebuilder.processor.util.TypeReference;
-
-import com.google.auto.service.AutoService;
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * Processor for the &#64;{@link FreeBuilder} annotation.
@@ -78,7 +77,7 @@ public class Processor extends AbstractProcessor {
         CompilationUnitWriter code = new CompilationUnitWriter(
             processingEnv.getFiler(),
             processingEnv.getElementUtils(),
-            TypeReference.to(metadata.getGeneratedBuilder()),
+            metadata.getGeneratedBuilder(),
             ImmutableSet.of(
                 metadata.getPartialType(), metadata.getPropertyEnum(), metadata.getValueType()),
             type);

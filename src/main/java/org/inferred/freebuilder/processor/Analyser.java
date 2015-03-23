@@ -28,7 +28,6 @@ import static javax.tools.Diagnostic.Kind.ERROR;
 import static javax.tools.Diagnostic.Kind.NOTE;
 import static org.inferred.freebuilder.processor.BuilderFactory.NO_ARGS_CONSTRUCTOR;
 import static org.inferred.freebuilder.processor.MethodFinder.methodsOn;
-import static org.inferred.freebuilder.processor.util.ModelUtils.findAnnotationMirror;
 
 import java.beans.Introspector;
 import java.io.Serializable;
@@ -64,8 +63,8 @@ import org.inferred.freebuilder.processor.Metadata.Property;
 import org.inferred.freebuilder.processor.Metadata.StandardMethod;
 import org.inferred.freebuilder.processor.Metadata.UnderrideLevel;
 import org.inferred.freebuilder.processor.PropertyCodeGenerator.Config;
-import org.inferred.freebuilder.processor.util.ImpliedClass;
 import org.inferred.freebuilder.processor.util.IsInvalidTypeVisitor;
+import org.inferred.freebuilder.processor.util.TypeReference;
 
 import com.google.common.annotations.GwtCompatible;
 import com.google.common.base.Optional;
@@ -137,17 +136,17 @@ class Analyser {
     verifyType(type);
     PackageElement pkg = elements.getPackageOf(type);
     ImmutableSet<ExecutableElement> methods = methodsOn(type, elements);
-    ImpliedClass generatedBuilder =
-        new ImpliedClass(pkg, generatedBuilderSimpleName(type), type, elements);
+    TypeReference generatedBuilder = TypeReference.to(
+        pkg.getQualifiedName().toString(), generatedBuilderSimpleName(type));
     Optional<TypeElement> builder = tryFindBuilder(generatedBuilder, type);
-    return new Metadata.Builder(elements)
+    return new Metadata.Builder()
         .setType(type)
-        .setBuilder(builder.or(generatedBuilder))
+        .setBuilder(builder)
         .setBuilderFactory(builderFactory(builder))
         .setGeneratedBuilder(generatedBuilder)
-        .setValueType(generatedBuilder.createNestedClass("Value"))
-        .setPartialType(generatedBuilder.createNestedClass("Partial"))
-        .setPropertyEnum(generatedBuilder.createNestedClass("Property"))
+        .setValueType(generatedBuilder.nestedType("Value"))
+        .setPartialType(generatedBuilder.nestedType("Partial"))
+        .setPropertyEnum(generatedBuilder.nestedType("Property"))
         .putAllStandardMethodUnderrides(findUnderriddenMethods(methods))
         .setBuilderSerializable(shouldBuilderBeSerializable(builder))
         .setGwtCompatible(isGwtCompatible(type))
@@ -284,7 +283,8 @@ class Analyser {
    * an error if the wrong type is being subclassed&mdash;a typical copy-and-paste error when
    * renaming an existing &#64;FreeBuilder type, or using one as a template.
    */
-  private Optional<TypeElement> tryFindBuilder(final ImpliedClass superclass, TypeElement type) {
+  private Optional<TypeElement> tryFindBuilder(
+      final TypeReference generatedBuilder, TypeElement type) {
     Optional<TypeElement> userClass =
         tryFind(typesIn(type.getEnclosedElements()), new Predicate<Element>() {
           @Override public boolean apply(Element input) {
@@ -296,28 +296,26 @@ class Analyser {
         messager.printMessage(
             NOTE,
             "Add \"class Builder extends "
-                + superclass.getSimpleName()
+                + generatedBuilder.getSimpleName()
                 + " {}\" to your interface to enable the @FreeBuilder API",
             type);
       } else {
         messager.printMessage(
             NOTE,
             "Add \"public static class Builder extends "
-                + superclass.getSimpleName()
+                + generatedBuilder.getSimpleName()
                 + " {}\" to your class to enable the @FreeBuilder API",
             type);
       }
       return Optional.absent();
     }
 
-    boolean extendsSuperclass =
-        new IsSubclassOfGeneratedTypeVisitor(superclass).visit(userClass.get().getSuperclass());
+    boolean extendsSuperclass = new IsSubclassOfGeneratedTypeVisitor(generatedBuilder)
+        .visit(userClass.get().getSuperclass());
     if (!extendsSuperclass) {
       messager.printMessage(
           ERROR,
-          "Builder extends the wrong type (should be "
-              + superclass.getSimpleName()
-              + ")",
+          "Builder extends the wrong type (should be " + generatedBuilder.getSimpleName() + ")",
           userClass.get());
       return Optional.absent();
     }
@@ -381,7 +379,6 @@ class Analyser {
     if (getterNameMatchResult == null) {
       return null;
     }
-    verifyNotNullable(valueType, method);
     String getterName = getterNameMatchResult.group(0);
 
     TypeMirror propertyType = getReturnType(valueType, method);
@@ -392,7 +389,8 @@ class Analyser {
             .setCapitalizedName(getterNameMatchResult.group(2))
             .setAllCapsName(camelCaseToAllCaps(camelCaseName))
             .setGetterName(getterName)
-            .setFullyCheckedCast(CAST_IS_FULLY_CHECKED.visit(propertyType));
+            .setFullyCheckedCast(CAST_IS_FULLY_CHECKED.visit(propertyType))
+            .addAllNullableAnnotations(nullableAnnotationsOn(method));
     if (propertyType.getKind().isPrimitive()) {
       PrimitiveType unboxedType = types.getPrimitiveType(propertyType.getKind());
       TypeMirror boxedType = types.erasure(types.boxedClass(unboxedType).asType());
@@ -429,24 +427,17 @@ class Analyser {
     }
   }
 
-  private void verifyNotNullable(TypeElement valueType, ExecutableElement getterMethod) {
-    Optional<AnnotationMirror> nullableAnnotation =
-        findAnnotationMirror(getterMethod, "javax.annotation.Nullable");
-    if (nullableAnnotation.isPresent()) {
-      if (getterMethod.getEnclosingElement().equals(valueType)) {
-        messager.printMessage(
-            ERROR,
-            "Nullable properties not supported on @FreeBuilder types (b/16057590)",
-            getterMethod,
-            nullableAnnotation.get());
-      } else {
-        messager.printMessage(
-            ERROR,
-            "Method '" + getterMethod + "' declared @Nullable, but Nullable properties are not "
-                + "supported on @FreeBuilder types (b/16057590)",
-            valueType);
+  private static ImmutableSet<TypeElement> nullableAnnotationsOn(ExecutableElement getterMethod) {
+    ImmutableSet.Builder<TypeElement> nullableAnnotations = ImmutableSet.builder();
+    for (AnnotationMirror mirror : getterMethod.getAnnotationMirrors()) {
+      if (mirror.getElementValues().isEmpty()) {
+        TypeElement type = (TypeElement) mirror.getAnnotationType().asElement();
+        if (type.getSimpleName().contentEquals("Nullable")) {
+          nullableAnnotations.add(type);
+        }
       }
     }
+    return nullableAnnotations.build();
   }
 
   private PropertyCodeGenerator createCodeGenerator(
@@ -644,13 +635,12 @@ class Analyser {
    * substituted in. (If the original type is nested, its enclosing classes will be included,
    * separated with underscores, to ensure uniqueness.)
    */
-  private Name generatedBuilderSimpleName(TypeElement type) {
+  private String generatedBuilderSimpleName(TypeElement type) {
     String packageName = elements.getPackageOf(type).getQualifiedName().toString();
     String originalName = type.getQualifiedName().toString();
     checkState(originalName.startsWith(packageName + "."));
     String nameWithoutPackage = originalName.substring(packageName.length() + 1);
-    return elements.getName(String.format(
-        BUILDER_SIMPLE_NAME_TEMPLATE, nameWithoutPackage.replaceAll("\\.", "_")));
+    return String.format(BUILDER_SIMPLE_NAME_TEMPLATE, nameWithoutPackage.replaceAll("\\.", "_"));
   }
 
   private boolean shouldBuilderBeSerializable(Optional<TypeElement> builder) {
@@ -710,9 +700,9 @@ class Analyser {
    */
   private static final class IsSubclassOfGeneratedTypeVisitor extends
       SimpleTypeVisitor6<Boolean, Void> {
-    private final ImpliedClass superclass;
+    private final TypeReference superclass;
 
-    private IsSubclassOfGeneratedTypeVisitor(ImpliedClass superclass) {
+    private IsSubclassOfGeneratedTypeVisitor(TypeReference superclass) {
       super(false);
       this.superclass = superclass;
     }
@@ -724,7 +714,7 @@ class Analyser {
     @Override
     public Boolean visitError(ErrorType t, Void p) {
       String simpleName = t.toString();
-      return equal(simpleName, superclass.getSimpleName().toString());
+      return equal(simpleName, superclass.getSimpleName());
     }
 
     /**
@@ -735,7 +725,7 @@ class Analyser {
     @Override
     public Boolean visitDeclared(DeclaredType t, Void p) {
       String qualifiedName = t.toString();
-      return equal(qualifiedName, superclass.getQualifiedName().toString());
+      return equal(qualifiedName, superclass.getQualifiedName());
     }
   }
 

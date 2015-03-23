@@ -18,7 +18,7 @@ package org.inferred.freebuilder.processor;
 import static com.google.common.collect.Iterables.any;
 import static com.google.common.collect.Iterables.getLast;
 import static com.google.common.collect.Iterables.getOnlyElement;
-import static org.inferred.freebuilder.processor.Metadata.Property.GET_CODE_GENERATOR;
+import static org.inferred.freebuilder.processor.Metadata.GET_CODE_GENERATOR;
 import static org.inferred.freebuilder.processor.Metadata.UnderrideLevel.ABSENT;
 import static org.inferred.freebuilder.processor.Metadata.UnderrideLevel.FINAL;
 import static org.inferred.freebuilder.processor.PropertyCodeGenerator.IS_TEMPLATE_REQUIRED_IN_CLEAR;
@@ -64,7 +64,7 @@ public class CodeGenerator {
 
   /** Write the source code for a generated builder. */
   void writeBuilderSource(SourceBuilder code, Metadata metadata) {
-    if (metadata.getBuilder() == metadata.getGeneratedBuilder()) {
+    if (!metadata.hasBuilder()) {
       writeStubSource(code, metadata);
       return;
     }
@@ -142,8 +142,11 @@ public class CodeGenerator {
     // Getters
     for (Property property : metadata.getProperties()) {
       code.addLine("")
-          .addLine("    @%s", Override.class)
-          .addLine("    public %s %s() {", property.getType(), property.getGetterName());
+          .addLine("    @%s", Override.class);
+      for (TypeElement nullableAnnotation : property.getNullableAnnotations()) {
+        code.addLine("    @%s", nullableAnnotation);
+      }
+      code.addLine("    public %s %s() {", property.getType(), property.getGetterName());
       code.add("      return ");
       property.getCodeGenerator().addReadValueFragment(code, property.getName());
       code.add(";\n");
@@ -453,8 +456,11 @@ public class CodeGenerator {
     // Getters
     for (Property property : metadata.getProperties()) {
       code.addLine("")
-          .addLine("    @%s", Override.class)
-          .addLine("    public %s %s() {", property.getType(), property.getGetterName());
+          .addLine("    @%s", Override.class);
+      for (TypeElement nullableAnnotation : property.getNullableAnnotations()) {
+        code.addLine("    @%s", nullableAnnotation);
+      }
+      code.addLine("    public %s %s() {", property.getType(), property.getGetterName());
       if (property.getCodeGenerator().getType() == Type.REQUIRED) {
         code.addLine("      if (_unsetProperties.contains(%s.%s)) {",
                 metadata.getPropertyEnum(), property.getAllCapsName())

@@ -31,7 +31,6 @@ import java.util.Map;
 
 import javax.annotation.Generated;
 import javax.annotation.Nullable;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 
 import org.inferred.freebuilder.processor.Analyser.CannotGenerateCodeException;
@@ -39,7 +38,7 @@ import org.inferred.freebuilder.processor.Metadata.Property;
 import org.inferred.freebuilder.processor.Metadata.StandardMethod;
 import org.inferred.freebuilder.processor.Metadata.UnderrideLevel;
 import org.inferred.freebuilder.processor.PropertyCodeGenerator.Type;
-import org.inferred.freebuilder.processor.util.ImpliedClass;
+import org.inferred.freebuilder.processor.util.TypeReference;
 import org.inferred.freebuilder.processor.util.testing.FakeMessager;
 import org.inferred.freebuilder.processor.util.testing.ModelRule;
 import org.junit.Before;
@@ -80,20 +79,17 @@ public class AnalyserTest {
 
     Metadata metadata = analyser.analyse(dataType);
 
-    PackageElement pkg = model.elementUtils().getPackageOf(dataType);
-    ImpliedClass expectedBuilder =
-        new ImpliedClass(pkg, "DataType_Builder", dataType, model.elementUtils());
-    Metadata expectedMetadata = new Metadata.Builder(model.elementUtils())
-        .setBuilder(expectedBuilder)
+    TypeReference expectedBuilder = TypeReference.to("com.example", "DataType_Builder");
+    Metadata expectedMetadata = new Metadata.Builder()
         .setBuilderFactory(NO_ARGS_CONSTRUCTOR)
         .setBuilderSerializable(true)
         .setGeneratedBuilder(expectedBuilder)
         .setGwtCompatible(false)
         .setGwtSerializable(false)
-        .setPartialType(expectedBuilder.createNestedClass("Partial"))
-        .setPropertyEnum(expectedBuilder.createNestedClass("Property"))
+        .setPartialType(expectedBuilder.nestedType("Partial"))
+        .setPropertyEnum(expectedBuilder.nestedType("Property"))
         .setType(dataType)
-        .setValueType(expectedBuilder.createNestedClass("Value"))
+        .setValueType(expectedBuilder.nestedType("Value"))
         .build();
 
     assertEquals(expectedMetadata, metadata);
@@ -112,20 +108,17 @@ public class AnalyserTest {
 
     Metadata metadata = analyser.analyse(dataType);
 
-    PackageElement pkg = model.elementUtils().getPackageOf(dataType);
-    ImpliedClass expectedBuilder =
-        new ImpliedClass(pkg, "DataType_Builder", dataType, model.elementUtils());
-    Metadata expectedMetadata = new Metadata.Builder(model.elementUtils())
-        .setBuilder(expectedBuilder)
+    TypeReference expectedBuilder = TypeReference.to("com.example", "DataType_Builder");
+    Metadata expectedMetadata = new Metadata.Builder()
         .setBuilderFactory(NO_ARGS_CONSTRUCTOR)
         .setBuilderSerializable(true)
         .setGeneratedBuilder(expectedBuilder)
         .setGwtCompatible(false)
         .setGwtSerializable(false)
-        .setPartialType(expectedBuilder.createNestedClass("Partial"))
-        .setPropertyEnum(expectedBuilder.createNestedClass("Property"))
+        .setPartialType(expectedBuilder.nestedType("Partial"))
+        .setPropertyEnum(expectedBuilder.nestedType("Property"))
         .setType(dataType)
-        .setValueType(expectedBuilder.createNestedClass("Value"))
+        .setValueType(expectedBuilder.nestedType("Value"))
         .build();
 
     assertEquals(expectedMetadata, metadata);
@@ -146,8 +139,8 @@ public class AnalyserTest {
     assertEquals("com.example.OuterClass.DataType",
         dataType.getType().getQualifiedName().toString());
     assertEquals("com.example", dataType.getPackage().getQualifiedName().toString());
-    assertEquals("com.example.OuterClass_DataType_Builder",
-        dataType.getGeneratedBuilder().getQualifiedName().toString());
+    assertEquals(TypeReference.to("com.example", "OuterClass_DataType_Builder"),
+        dataType.getGeneratedBuilder());
   }
 
   @Test
@@ -163,8 +156,8 @@ public class AnalyserTest {
     assertEquals("com.example.OuterClass.InnerClass.DataType",
         dataType.getType().getQualifiedName().toString());
     assertEquals("com.example", dataType.getPackage().getQualifiedName().toString());
-    assertEquals("com.example.OuterClass_InnerClass_DataType_Builder",
-        dataType.getGeneratedBuilder().getQualifiedName().toString());
+    assertEquals(TypeReference.to("com.example", "OuterClass_InnerClass_DataType_Builder"),
+        dataType.getGeneratedBuilder());
   }
 
   @Test
@@ -174,8 +167,8 @@ public class AnalyserTest {
         "public class DataType {",
         "  public static class Builder extends DataType_Builder { }",
         "}"));
-    assertEquals("com.example.DataType_Builder",
-        dataType.getGeneratedBuilder().getQualifiedName().toString());
+    assertEquals(TypeReference.to("com.example", "DataType_Builder"),
+        dataType.getGeneratedBuilder());
     assertEquals("com.example.DataType.Builder",
         dataType.getBuilder().getQualifiedName().toString());
     assertThat(dataType.getBuilderFactory()).hasValue(NO_ARGS_CONSTRUCTOR);
@@ -191,8 +184,8 @@ public class AnalyserTest {
         "  public static class Builder ",
         "      extends DataType_Builder implements java.io.Serializable { }",
         "}"));
-    assertEquals("com.example.DataType_Builder",
-        dataType.getGeneratedBuilder().getQualifiedName().toString());
+    assertEquals(TypeReference.to("com.example", "DataType_Builder"),
+        dataType.getGeneratedBuilder());
     assertEquals("com.example.DataType.Builder",
         dataType.getBuilder().getQualifiedName().toString());
     assertTrue(dataType.isBuilderSerializable());
@@ -207,8 +200,8 @@ public class AnalyserTest {
         "  public static class Builder extends DataType_Builder { }",
         "  public static Builder builder() { return new Builder(); }",
         "}"));
-    assertEquals("com.example.DataType_Builder",
-        dataType.getGeneratedBuilder().getQualifiedName().toString());
+    assertEquals(TypeReference.to("com.example", "DataType_Builder"),
+        dataType.getGeneratedBuilder());
     assertEquals("com.example.DataType.Builder",
         dataType.getBuilder().getQualifiedName().toString());
     assertThat(dataType.getBuilderFactory()).hasValue(BUILDER_METHOD);
@@ -224,8 +217,8 @@ public class AnalyserTest {
         "  public static class Builder extends DataType_Builder { }",
         "  public static Builder newBuilder() { return new Builder(); }",
         "}"));
-    assertEquals("com.example.DataType_Builder",
-        dataType.getGeneratedBuilder().getQualifiedName().toString());
+    assertEquals(TypeReference.to("com.example", "DataType_Builder"),
+        dataType.getGeneratedBuilder());
     assertEquals("com.example.DataType.Builder",
         dataType.getBuilder().getQualifiedName().toString());
     assertThat(dataType.getBuilderFactory()).hasValue(NEW_BUILDER_METHOD);
@@ -611,10 +604,52 @@ public class AnalyserTest {
     assertEquals("java.lang.String", properties.get("name").getType().toString());
     assertEquals("Name", properties.get("name").getCapitalizedName());
     assertEquals("getName", properties.get("name").getGetterName());
-    assertThat(messager.getMessagesByElement().keys())
-        .containsExactly("getName@Nullable");
-    assertThat(messager.getMessagesByElement().get("getName@Nullable")).containsExactly(
-        "[ERROR] Nullable properties not supported on @FreeBuilder types (b/16057590)");
+    assertThat(properties.get("name").getNullableAnnotations())
+        .containsExactly(model.typeElement(Nullable.class));
+    assertThat(messager.getMessagesByElement().keys()).isEmpty();
+  }
+
+  @Test
+  public void arbitraryNullableAnnotation() throws CannotGenerateCodeException {
+    model.newType(
+        "package foo.bar;",
+        "public @interface Nullable {}");
+    Metadata dataType = analyser.analyse(model.newType(
+        "package com.example;",
+        "public class DataType {",
+        "  public abstract @foo.bar.Nullable String getName();",
+        "  public static class Builder extends DataType_Builder {}",
+        "}"));
+    Map<String, Property> properties = uniqueIndex(dataType.getProperties(), GET_NAME);
+    assertThat(properties.keySet()).containsExactly("name");
+    assertEquals("java.lang.String", properties.get("name").getType().toString());
+    assertEquals("Name", properties.get("name").getCapitalizedName());
+    assertEquals("getName", properties.get("name").getGetterName());
+    assertThat(properties.get("name").getNullableAnnotations())
+        .containsExactly(model.typeElement("foo.bar.Nullable"));
+    assertThat(messager.getMessagesByElement().keys()).isEmpty();
+  }
+
+  @Test
+  public void multipleNullableAnnotations() throws CannotGenerateCodeException {
+    model.newType(
+        "package foo.bar;",
+        "public @interface Nullable {}");
+    Metadata dataType = analyser.analyse(model.newType(
+        "package com.example;",
+        "public class DataType {",
+        "  public abstract @" + Nullable.class.getName() + " @foo.bar.Nullable String getName();",
+        "  public static class Builder extends DataType_Builder {}",
+        "}"));
+    Map<String, Property> properties = uniqueIndex(dataType.getProperties(), GET_NAME);
+    assertThat(properties.keySet()).containsExactly("name");
+    assertEquals("java.lang.String", properties.get("name").getType().toString());
+    assertEquals("Name", properties.get("name").getCapitalizedName());
+    assertEquals("getName", properties.get("name").getGetterName());
+    assertThat(properties.get("name").getNullableAnnotations())
+        .containsExactly(model.typeElement(Nullable.class), model.typeElement("foo.bar.Nullable"))
+        .inOrder();
+    assertThat(messager.getMessagesByElement().keys()).isEmpty();
   }
 
   @Test
@@ -631,9 +666,7 @@ public class AnalyserTest {
     Metadata metadata = analyser.analyse(dataType);
 
     assertThat(metadata.getStandardMethodUnderrides()).isEqualTo(ImmutableMap.of(
-        StandardMethod.EQUALS, UnderrideLevel.OVERRIDEABLE,
-        StandardMethod.HASH_CODE, UnderrideLevel.ABSENT,
-        StandardMethod.TO_STRING, UnderrideLevel.ABSENT));
+        StandardMethod.EQUALS, UnderrideLevel.OVERRIDEABLE));
     assertThat(messager.getMessagesByElement().asMap())
         .containsEntry("equals", ImmutableList.of(
             "[ERROR] hashCode and equals must be implemented together on @FreeBuilder types"));
@@ -653,9 +686,7 @@ public class AnalyserTest {
     Metadata metadata = analyser.analyse(dataType);
 
     assertThat(metadata.getStandardMethodUnderrides()).isEqualTo(ImmutableMap.of(
-        StandardMethod.EQUALS, UnderrideLevel.ABSENT,
-        StandardMethod.HASH_CODE, UnderrideLevel.OVERRIDEABLE,
-        StandardMethod.TO_STRING, UnderrideLevel.ABSENT));
+        StandardMethod.HASH_CODE, UnderrideLevel.OVERRIDEABLE));
     assertThat(messager.getMessagesByElement().asMap())
         .containsEntry("hashCode", ImmutableList.of(
             "[ERROR] hashCode and equals must be implemented together on @FreeBuilder types"));
@@ -679,8 +710,7 @@ public class AnalyserTest {
 
     assertThat(metadata.getStandardMethodUnderrides()).isEqualTo(ImmutableMap.of(
         StandardMethod.EQUALS, UnderrideLevel.OVERRIDEABLE,
-        StandardMethod.HASH_CODE, UnderrideLevel.OVERRIDEABLE,
-        StandardMethod.TO_STRING, UnderrideLevel.ABSENT));
+        StandardMethod.HASH_CODE, UnderrideLevel.OVERRIDEABLE));
     assertThat(messager.getMessagesByElement().asMap()).isEmpty();
   }
 
@@ -698,8 +728,6 @@ public class AnalyserTest {
     Metadata metadata = analyser.analyse(dataType);
 
     assertThat(metadata.getStandardMethodUnderrides()).isEqualTo(ImmutableMap.of(
-        StandardMethod.EQUALS, UnderrideLevel.ABSENT,
-        StandardMethod.HASH_CODE, UnderrideLevel.ABSENT,
         StandardMethod.TO_STRING, UnderrideLevel.OVERRIDEABLE));
     assertThat(messager.getMessagesByElement().asMap()).isEmpty();
   }
@@ -744,9 +772,7 @@ public class AnalyserTest {
     Metadata metadata = analyser.analyse(dataType);
 
     assertThat(metadata.getStandardMethodUnderrides()).isEqualTo(ImmutableMap.of(
-        StandardMethod.EQUALS, UnderrideLevel.FINAL,
-        StandardMethod.HASH_CODE, UnderrideLevel.ABSENT,
-        StandardMethod.TO_STRING, UnderrideLevel.ABSENT));
+        StandardMethod.EQUALS, UnderrideLevel.FINAL));
     assertThat(messager.getMessagesByElement().asMap())
         .containsEntry("equals", ImmutableList.of(
             "[ERROR] hashCode and equals must be implemented together on @FreeBuilder types"));
@@ -766,9 +792,7 @@ public class AnalyserTest {
     Metadata metadata = analyser.analyse(dataType);
 
     assertThat(metadata.getStandardMethodUnderrides()).isEqualTo(ImmutableMap.of(
-        StandardMethod.EQUALS, UnderrideLevel.ABSENT,
-        StandardMethod.HASH_CODE, UnderrideLevel.FINAL,
-        StandardMethod.TO_STRING, UnderrideLevel.ABSENT));
+        StandardMethod.HASH_CODE, UnderrideLevel.FINAL));
     assertThat(messager.getMessagesByElement().asMap())
         .containsEntry("hashCode", ImmutableList.of(
             "[ERROR] hashCode and equals must be implemented together on @FreeBuilder types"));
@@ -792,8 +816,7 @@ public class AnalyserTest {
 
     assertThat(metadata.getStandardMethodUnderrides()).isEqualTo(ImmutableMap.of(
         StandardMethod.EQUALS, UnderrideLevel.FINAL,
-        StandardMethod.HASH_CODE, UnderrideLevel.FINAL,
-        StandardMethod.TO_STRING, UnderrideLevel.ABSENT));
+        StandardMethod.HASH_CODE, UnderrideLevel.FINAL));
     assertThat(messager.getMessagesByElement().asMap()).isEmpty();
   }
 
@@ -811,8 +834,6 @@ public class AnalyserTest {
     Metadata metadata = analyser.analyse(dataType);
 
     assertThat(metadata.getStandardMethodUnderrides()).isEqualTo(ImmutableMap.of(
-        StandardMethod.EQUALS, UnderrideLevel.ABSENT,
-        StandardMethod.HASH_CODE, UnderrideLevel.ABSENT,
         StandardMethod.TO_STRING, UnderrideLevel.FINAL));
     assertThat(messager.getMessagesByElement().asMap()).isEmpty();
   }
@@ -855,10 +876,7 @@ public class AnalyserTest {
 
     Metadata metadata = analyser.analyse(dataType);
 
-    assertThat(metadata.getStandardMethodUnderrides()).isEqualTo(ImmutableMap.of(
-        StandardMethod.EQUALS, UnderrideLevel.ABSENT,
-        StandardMethod.HASH_CODE, UnderrideLevel.ABSENT,
-        StandardMethod.TO_STRING, UnderrideLevel.ABSENT));
+    assertThat(metadata.getStandardMethodUnderrides()).isEmpty();
     assertThat(messager.getMessagesByElement().asMap()).isEmpty();
   }
 
@@ -874,10 +892,7 @@ public class AnalyserTest {
 
     Metadata metadata = analyser.analyse(dataType);
 
-    assertThat(metadata.getStandardMethodUnderrides()).isEqualTo(ImmutableMap.of(
-        StandardMethod.EQUALS, UnderrideLevel.ABSENT,
-        StandardMethod.HASH_CODE, UnderrideLevel.ABSENT,
-        StandardMethod.TO_STRING, UnderrideLevel.ABSENT));
+    assertThat(metadata.getStandardMethodUnderrides()).isEmpty();
     assertThat(messager.getMessagesByElement().asMap()).isEmpty();
   }
 
@@ -893,10 +908,7 @@ public class AnalyserTest {
 
     Metadata metadata = analyser.analyse(dataType);
 
-    assertThat(metadata.getStandardMethodUnderrides()).isEqualTo(ImmutableMap.of(
-        StandardMethod.EQUALS, UnderrideLevel.ABSENT,
-        StandardMethod.HASH_CODE, UnderrideLevel.ABSENT,
-        StandardMethod.TO_STRING, UnderrideLevel.ABSENT));
+    assertThat(metadata.getStandardMethodUnderrides()).isEmpty();
     assertThat(messager.getMessagesByElement().asMap()).isEmpty();
   }
 
@@ -1042,20 +1054,18 @@ public class AnalyserTest {
 
     Metadata metadata = analyser.analyse(dataType);
 
-    PackageElement pkg = model.elementUtils().getPackageOf(dataType);
-    ImpliedClass expectedBuilder =
-        new ImpliedClass(pkg, "DataType_Builder", dataType, model.elementUtils());
-    Metadata expectedMetadata = new Metadata.Builder(model.elementUtils())
+    TypeReference expectedBuilder = TypeReference.to("com.example", "DataType_Builder");
+    Metadata expectedMetadata = new Metadata.Builder()
         .setBuilder(model.typeElement("com.example.DataType.Builder"))
         .setBuilderFactory(NO_ARGS_CONSTRUCTOR)
         .setBuilderSerializable(false)
         .setGeneratedBuilder(expectedBuilder)
         .setGwtCompatible(false)
         .setGwtSerializable(false)
-        .setPartialType(expectedBuilder.createNestedClass("Partial"))
-        .setPropertyEnum(expectedBuilder.createNestedClass("Property"))
+        .setPartialType(expectedBuilder.nestedType("Partial"))
+        .setPropertyEnum(expectedBuilder.nestedType("Property"))
         .setType(dataType)
-        .setValueType(expectedBuilder.createNestedClass("Value"))
+        .setValueType(expectedBuilder.nestedType("Value"))
         .build();
 
     assertEquals(expectedMetadata, metadata);
@@ -1075,20 +1085,18 @@ public class AnalyserTest {
 
     Metadata metadata = analyser.analyse(dataType);
 
-    PackageElement pkg = model.elementUtils().getPackageOf(dataType);
-    ImpliedClass expectedBuilder =
-        new ImpliedClass(pkg, "DataType_Builder", dataType, model.elementUtils());
-    Metadata expectedMetadata = new Metadata.Builder(model.elementUtils())
+    TypeReference expectedBuilder = TypeReference.to("com.example", "DataType_Builder");
+    Metadata expectedMetadata = new Metadata.Builder()
         .setBuilder(model.typeElement("com.example.DataType.Builder"))
         .setBuilderFactory(NO_ARGS_CONSTRUCTOR)
         .setBuilderSerializable(false)
         .setGeneratedBuilder(expectedBuilder)
         .setGwtCompatible(false)
         .setGwtSerializable(false)
-        .setPartialType(expectedBuilder.createNestedClass("Partial"))
-        .setPropertyEnum(expectedBuilder.createNestedClass("Property"))
+        .setPartialType(expectedBuilder.nestedType("Partial"))
+        .setPropertyEnum(expectedBuilder.nestedType("Property"))
         .setType(dataType)
-        .setValueType(expectedBuilder.createNestedClass("Value"))
+        .setValueType(expectedBuilder.nestedType("Value"))
         .build();
 
     assertEquals(expectedMetadata, metadata);

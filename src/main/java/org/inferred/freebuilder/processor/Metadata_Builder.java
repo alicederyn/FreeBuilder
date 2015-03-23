@@ -20,7 +20,7 @@ import javax.annotation.Nullable;
 import javax.lang.model.element.TypeElement;
 import org.inferred.freebuilder.processor.BuilderFactory;
 import org.inferred.freebuilder.processor.Metadata;
-import org.inferred.freebuilder.processor.util.TypeReference;
+import org.inferred.freebuilder.processor.util.QualifiedName;
 
 /**
  * Auto-generated superclass of {@link Metadata.Builder},
@@ -57,17 +57,17 @@ abstract class Metadata_Builder {
   // allows the JVM to optimize away the Optional objects created by and
   // passed to our API.
   private BuilderFactory builderFactory = null;
-  private TypeReference generatedBuilder;
+  private QualifiedName generatedBuilder;
   // Store a nullable object instead of an Optional. Escape analysis then
   // allows the JVM to optimize away the Optional objects created by and
   // passed to our API.
   private TypeElement optionalBuilder = null;
-  private TypeReference partialType;
+  private QualifiedName partialType;
   private ArrayList<Metadata.Property> properties = new ArrayList<Metadata.Property>();
-  private TypeReference propertyEnum;
+  private QualifiedName propertyEnum;
   private LinkedHashMap<Metadata.StandardMethod, Metadata.UnderrideLevel> standardMethodUnderrides = new LinkedHashMap<Metadata.StandardMethod, Metadata.UnderrideLevel>();
   private TypeElement type;
-  private TypeReference valueType;
+  private QualifiedName valueType;
   private boolean builderSerializable;
   private boolean gwtCompatible;
   private boolean gwtSerializable;
@@ -135,7 +135,7 @@ abstract class Metadata_Builder {
    * @return this {@code Builder} object
    * @throws NullPointerException if {@code generatedBuilder} is null
    */
-  public Metadata.Builder setGeneratedBuilder(TypeReference generatedBuilder) {
+  public Metadata.Builder setGeneratedBuilder(QualifiedName generatedBuilder) {
     this.generatedBuilder = Preconditions.checkNotNull(generatedBuilder);
     _unsetProperties.remove(Metadata_Builder.Property.GENERATED_BUILDER);
     return (Metadata.Builder) this;
@@ -146,7 +146,7 @@ abstract class Metadata_Builder {
    *
    * @throws IllegalStateException if the field has not been set
    */
-  public TypeReference getGeneratedBuilder() {
+  public QualifiedName getGeneratedBuilder() {
     Preconditions.checkState(
         !_unsetProperties.contains(Metadata_Builder.Property.GENERATED_BUILDER),
         "generatedBuilder not set");
@@ -214,7 +214,7 @@ abstract class Metadata_Builder {
    * @return this {@code Builder} object
    * @throws NullPointerException if {@code partialType} is null
    */
-  public Metadata.Builder setPartialType(TypeReference partialType) {
+  public Metadata.Builder setPartialType(QualifiedName partialType) {
     this.partialType = Preconditions.checkNotNull(partialType);
     _unsetProperties.remove(Metadata_Builder.Property.PARTIAL_TYPE);
     return (Metadata.Builder) this;
@@ -225,7 +225,7 @@ abstract class Metadata_Builder {
    *
    * @throws IllegalStateException if the field has not been set
    */
-  public TypeReference getPartialType() {
+  public QualifiedName getPartialType() {
     Preconditions.checkState(
         !_unsetProperties.contains(Metadata_Builder.Property.PARTIAL_TYPE),
         "partialType not set");
@@ -302,7 +302,7 @@ abstract class Metadata_Builder {
    * @return this {@code Builder} object
    * @throws NullPointerException if {@code propertyEnum} is null
    */
-  public Metadata.Builder setPropertyEnum(TypeReference propertyEnum) {
+  public Metadata.Builder setPropertyEnum(QualifiedName propertyEnum) {
     this.propertyEnum = Preconditions.checkNotNull(propertyEnum);
     _unsetProperties.remove(Metadata_Builder.Property.PROPERTY_ENUM);
     return (Metadata.Builder) this;
@@ -313,7 +313,7 @@ abstract class Metadata_Builder {
    *
    * @throws IllegalStateException if the field has not been set
    */
-  public TypeReference getPropertyEnum() {
+  public QualifiedName getPropertyEnum() {
     Preconditions.checkState(
         !_unsetProperties.contains(Metadata_Builder.Property.PROPERTY_ENUM),
         "propertyEnum not set");
@@ -421,7 +421,7 @@ abstract class Metadata_Builder {
    * @return this {@code Builder} object
    * @throws NullPointerException if {@code valueType} is null
    */
-  public Metadata.Builder setValueType(TypeReference valueType) {
+  public Metadata.Builder setValueType(QualifiedName valueType) {
     this.valueType = Preconditions.checkNotNull(valueType);
     _unsetProperties.remove(Metadata_Builder.Property.VALUE_TYPE);
     return (Metadata.Builder) this;
@@ -432,7 +432,7 @@ abstract class Metadata_Builder {
    *
    * @throws IllegalStateException if the field has not been set
    */
-  public TypeReference getValueType() {
+  public QualifiedName getValueType() {
     Preconditions.checkState(
         !_unsetProperties.contains(Metadata_Builder.Property.VALUE_TYPE),
         "valueType not set");
@@ -513,17 +513,17 @@ abstract class Metadata_Builder {
     // allows the JVM to optimize away the Optional objects created by our
     // getter method.
     private final BuilderFactory builderFactory;
-    private final TypeReference generatedBuilder;
+    private final QualifiedName generatedBuilder;
     // Store a nullable object instead of an Optional. Escape analysis then
     // allows the JVM to optimize away the Optional objects created by our
     // getter method.
     private final TypeElement optionalBuilder;
-    private final TypeReference partialType;
+    private final QualifiedName partialType;
     private final ImmutableList<Metadata.Property> properties;
-    private final TypeReference propertyEnum;
+    private final QualifiedName propertyEnum;
     private final ImmutableMap<Metadata.StandardMethod, Metadata.UnderrideLevel> standardMethodUnderrides;
     private final TypeElement type;
-    private final TypeReference valueType;
+    private final QualifiedName valueType;
     private final boolean builderSerializable;
     private final boolean gwtCompatible;
     private final boolean gwtSerializable;
@@ -549,7 +549,7 @@ abstract class Metadata_Builder {
     }
 
     @Override
-    public TypeReference getGeneratedBuilder() {
+    public QualifiedName getGeneratedBuilder() {
       return generatedBuilder;
     }
 
@@ -559,7 +559,7 @@ abstract class Metadata_Builder {
     }
 
     @Override
-    public TypeReference getPartialType() {
+    public QualifiedName getPartialType() {
       return partialType;
     }
 
@@ -569,7 +569,7 @@ abstract class Metadata_Builder {
     }
 
     @Override
-    public TypeReference getPropertyEnum() {
+    public QualifiedName getPropertyEnum() {
       return propertyEnum;
     }
 
@@ -584,7 +584,7 @@ abstract class Metadata_Builder {
     }
 
     @Override
-    public TypeReference getValueType() {
+    public QualifiedName getValueType() {
       return valueType;
     }
 
@@ -770,17 +770,17 @@ abstract class Metadata_Builder {
     // allows the JVM to optimize away the Optional objects created by our
     // getter method.
     private final BuilderFactory builderFactory;
-    private final TypeReference generatedBuilder;
+    private final QualifiedName generatedBuilder;
     // Store a nullable object instead of an Optional. Escape analysis then
     // allows the JVM to optimize away the Optional objects created by our
     // getter method.
     private final TypeElement optionalBuilder;
-    private final TypeReference partialType;
+    private final QualifiedName partialType;
     private final ImmutableList<Metadata.Property> properties;
-    private final TypeReference propertyEnum;
+    private final QualifiedName propertyEnum;
     private final ImmutableMap<Metadata.StandardMethod, Metadata.UnderrideLevel> standardMethodUnderrides;
     private final TypeElement type;
-    private final TypeReference valueType;
+    private final QualifiedName valueType;
     private final boolean builderSerializable;
     private final boolean gwtCompatible;
     private final boolean gwtSerializable;
@@ -808,7 +808,7 @@ abstract class Metadata_Builder {
     }
 
     @Override
-    public TypeReference getGeneratedBuilder() {
+    public QualifiedName getGeneratedBuilder() {
       if (_unsetProperties.contains(Metadata_Builder.Property.GENERATED_BUILDER)) {
         throw new UnsupportedOperationException("generatedBuilder not set");
       }
@@ -821,7 +821,7 @@ abstract class Metadata_Builder {
     }
 
     @Override
-    public TypeReference getPartialType() {
+    public QualifiedName getPartialType() {
       if (_unsetProperties.contains(Metadata_Builder.Property.PARTIAL_TYPE)) {
         throw new UnsupportedOperationException("partialType not set");
       }
@@ -834,7 +834,7 @@ abstract class Metadata_Builder {
     }
 
     @Override
-    public TypeReference getPropertyEnum() {
+    public QualifiedName getPropertyEnum() {
       if (_unsetProperties.contains(Metadata_Builder.Property.PROPERTY_ENUM)) {
         throw new UnsupportedOperationException("propertyEnum not set");
       }
@@ -855,7 +855,7 @@ abstract class Metadata_Builder {
     }
 
     @Override
-    public TypeReference getValueType() {
+    public QualifiedName getValueType() {
       if (_unsetProperties.contains(Metadata_Builder.Property.VALUE_TYPE)) {
         throw new UnsupportedOperationException("valueType not set");
       }

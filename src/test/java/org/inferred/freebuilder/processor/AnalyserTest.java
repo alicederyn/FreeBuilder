@@ -38,7 +38,7 @@ import org.inferred.freebuilder.processor.Metadata.Property;
 import org.inferred.freebuilder.processor.Metadata.StandardMethod;
 import org.inferred.freebuilder.processor.Metadata.UnderrideLevel;
 import org.inferred.freebuilder.processor.PropertyCodeGenerator.Type;
-import org.inferred.freebuilder.processor.util.TypeReference;
+import org.inferred.freebuilder.processor.util.QualifiedName;
 import org.inferred.freebuilder.processor.util.testing.FakeMessager;
 import org.inferred.freebuilder.processor.util.testing.ModelRule;
 import org.junit.Before;
@@ -79,7 +79,7 @@ public class AnalyserTest {
 
     Metadata metadata = analyser.analyse(dataType);
 
-    TypeReference expectedBuilder = TypeReference.to("com.example", "DataType_Builder");
+    QualifiedName expectedBuilder = QualifiedName.of("com.example", "DataType_Builder");
     Metadata expectedMetadata = new Metadata.Builder()
         .setBuilderFactory(NO_ARGS_CONSTRUCTOR)
         .setBuilderSerializable(true)
@@ -108,7 +108,7 @@ public class AnalyserTest {
 
     Metadata metadata = analyser.analyse(dataType);
 
-    TypeReference expectedBuilder = TypeReference.to("com.example", "DataType_Builder");
+    QualifiedName expectedBuilder = QualifiedName.of("com.example", "DataType_Builder");
     Metadata expectedMetadata = new Metadata.Builder()
         .setBuilderFactory(NO_ARGS_CONSTRUCTOR)
         .setBuilderSerializable(true)
@@ -139,7 +139,7 @@ public class AnalyserTest {
     assertEquals("com.example.OuterClass.DataType",
         dataType.getType().getQualifiedName().toString());
     assertEquals("com.example", dataType.getPackage().getQualifiedName().toString());
-    assertEquals(TypeReference.to("com.example", "OuterClass_DataType_Builder"),
+    assertEquals(QualifiedName.of("com.example", "OuterClass_DataType_Builder"),
         dataType.getGeneratedBuilder());
   }
 
@@ -156,7 +156,7 @@ public class AnalyserTest {
     assertEquals("com.example.OuterClass.InnerClass.DataType",
         dataType.getType().getQualifiedName().toString());
     assertEquals("com.example", dataType.getPackage().getQualifiedName().toString());
-    assertEquals(TypeReference.to("com.example", "OuterClass_InnerClass_DataType_Builder"),
+    assertEquals(QualifiedName.of("com.example", "OuterClass_InnerClass_DataType_Builder"),
         dataType.getGeneratedBuilder());
   }
 
@@ -167,7 +167,7 @@ public class AnalyserTest {
         "public class DataType {",
         "  public static class Builder extends DataType_Builder { }",
         "}"));
-    assertEquals(TypeReference.to("com.example", "DataType_Builder"),
+    assertEquals(QualifiedName.of("com.example", "DataType_Builder"),
         dataType.getGeneratedBuilder());
     assertEquals("com.example.DataType.Builder",
         dataType.getBuilder().getQualifiedName().toString());
@@ -184,7 +184,7 @@ public class AnalyserTest {
         "  public static class Builder ",
         "      extends DataType_Builder implements java.io.Serializable { }",
         "}"));
-    assertEquals(TypeReference.to("com.example", "DataType_Builder"),
+    assertEquals(QualifiedName.of("com.example", "DataType_Builder"),
         dataType.getGeneratedBuilder());
     assertEquals("com.example.DataType.Builder",
         dataType.getBuilder().getQualifiedName().toString());
@@ -200,7 +200,7 @@ public class AnalyserTest {
         "  public static class Builder extends DataType_Builder { }",
         "  public static Builder builder() { return new Builder(); }",
         "}"));
-    assertEquals(TypeReference.to("com.example", "DataType_Builder"),
+    assertEquals(QualifiedName.of("com.example", "DataType_Builder"),
         dataType.getGeneratedBuilder());
     assertEquals("com.example.DataType.Builder",
         dataType.getBuilder().getQualifiedName().toString());
@@ -217,7 +217,7 @@ public class AnalyserTest {
         "  public static class Builder extends DataType_Builder { }",
         "  public static Builder newBuilder() { return new Builder(); }",
         "}"));
-    assertEquals(TypeReference.to("com.example", "DataType_Builder"),
+    assertEquals(QualifiedName.of("com.example", "DataType_Builder"),
         dataType.getGeneratedBuilder());
     assertEquals("com.example.DataType.Builder",
         dataType.getBuilder().getQualifiedName().toString());
@@ -1054,7 +1054,7 @@ public class AnalyserTest {
 
     Metadata metadata = analyser.analyse(dataType);
 
-    TypeReference expectedBuilder = TypeReference.to("com.example", "DataType_Builder");
+    QualifiedName expectedBuilder = QualifiedName.of("com.example", "DataType_Builder");
     Metadata expectedMetadata = new Metadata.Builder()
         .setBuilder(model.typeElement("com.example.DataType.Builder"))
         .setBuilderFactory(NO_ARGS_CONSTRUCTOR)
@@ -1085,7 +1085,7 @@ public class AnalyserTest {
 
     Metadata metadata = analyser.analyse(dataType);
 
-    TypeReference expectedBuilder = TypeReference.to("com.example", "DataType_Builder");
+    QualifiedName expectedBuilder = QualifiedName.of("com.example", "DataType_Builder");
     Metadata expectedMetadata = new Metadata.Builder()
         .setBuilder(model.typeElement("com.example.DataType.Builder"))
         .setBuilderFactory(NO_ARGS_CONSTRUCTOR)
